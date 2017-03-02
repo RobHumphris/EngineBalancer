@@ -48,6 +48,7 @@ Its a terrifying thing, and is to be left alone.
 ### Instrumentation
 The idea is to embrace the mantra 
 > Perfect is the enemy of Good Enough
+
 So I'm using things that already work, and a nice simple way of coding them.
 
 Things that already work are:
