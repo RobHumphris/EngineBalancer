@@ -24,7 +24,7 @@ Once we have a notional force we need to give it context, for this we want the a
 ![Sensor Wheel](images/sensor-wheel.jpg)
 
 ### Drive Motor
-Its a big ugly 3-phase thing that will spin the shaft at a set speed, thankfully because it work perfectly well we don't have to worry about it.
+Its a big ugly 3-phase thing that will spin the shaft at a set speed, thankfully because it works perfectly well we don't have to worry about it.
 
 ### Instrumentation
 Somehow due to magic (this thing originally used valves, and was transistorised in the 1980s) the forces read from the Load Cells are presented with their reference angles. There are some frightening looking boxes with wires, and a whole heap of calibration trim pots that defy description.
@@ -46,4 +46,12 @@ Three photo interrupters will be used with two slotted disks
 Its a terrifying thing, and is to be left alone.
 
 ### Instrumentation
-...
+The idea is to embrace the mantra 
+> Perfect is the enemy of Good Enough
+So I'm using things that already work, and a nice simple way of coding them.
+
+Things that already work are:
+* Arduino Mega 2560
+    * [Robot Shop's Strain gauge load cell amplifier sheild](http://www.robotshop.com/uk/strain-gauge-load-cell-amplifier-shield-2ch.html?utm_source=Facebook&utm_medium=Paid&utm_campaign=ProdCatUK)
+    * Opteck OPB830W Photo Interrupters (http://datasheet.octopart.com/OPB830W55Z-TT-datasheet-5310085.pdf)
+* Python based Graphical display.
