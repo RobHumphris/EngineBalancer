@@ -17,8 +17,7 @@ graphLabelY = graphLineY + 10
 xScalar = axisLength / 360
 yScalar = axisHeight / 200
 
-
-def getXfromAngle(angle):
+def getXfromAngle(angle): # 
     global startX, axisLength, xScalar
     retVal = (angle * xScalar) + startX
     return retVal
@@ -63,15 +62,32 @@ def plotReading(angle, value, colour):
     Y = getYFromValue(value)
     canvas.create_line(X, Y, X+2, Y, fill=colour, width=2)
 
-root = Tk()
+def statusMessage(message):
+    global canvas, statusTextID
+    canvas.itemconfig(statusTextID, text="Status: " + message)
 
-canvas = Canvas(root, width=canvasWidth, height=canvasHeight)
-canvas.grid(column=0, row=0, sticky=(N, W, E, S))
+def positionMessage(message):
+    global canvas, positionTextID
+    canvas.itemconfig(positionTextID, text=message)
 
-drawGraphAxis()
+def init():
+    global canvas, root, statusTextID, positionTextID
+    root = Tk()
+    canvas = Canvas(root, width=canvasWidth, height=canvasHeight)
+    canvas.grid(column=0, row=0, sticky=(N, W, E, S))
+    statusTextID = canvas.create_text(5, 5, anchor="nw")
+    positionTextID = canvas.create_text(5, 400, anchor="nw")
 
-plotReading(45, 50, sensorAColour)
-plotReading(50, 55, sensorAColour)
-plotReading(55, 60, sensorAColour)
+def loop():
+    global root
+    root.mainloop()
 
-root.mainloop()
+#drawGraphAxis()
+#
+#plotReading(45, 50, sensorAColour)
+#plotReading(50, 55, sensorAColour)
+#plotReading(55, 60, sensorAColour)
+#
+#plotReading(45, -50, sensorBColour)
+#plotReading(50, -55, sensorBColour)
+#plotReading(55, -60, sensorBColour)
