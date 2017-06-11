@@ -1,13 +1,19 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import font
 
 canvasWidth = 800
 canvasHeight = 450
 axisLength = 720
 axisHeight = 400
-axisColour = "#476042"
+
+axisColour = "#94BA65"
+canvasColour = "#4E4D4A"
 sensorAColour = "#FF0000"
 sensorBColour = "#0000FF"
+statusMessageColour = "#2790B0"
+zColour = "#2B4E72"
+
 startX = 40
 startY = 25
 graphLineX = (axisLength / 2) + startX
@@ -32,15 +38,15 @@ def getYFromValue(value):
     return retVal + startY
 
 def drawXTickAndLabel(angle, label):
-    global canvas, graphLabelY, axisColour
+    global canvas, graphLabelY, axisColour, labelFont
     X = getXfromAngle(angle)
-    canvas.create_text(X, graphLabelY, text=label)
+    canvas.create_text(X, graphLabelY, text=label, fill=statusMessageColour, font=labelFont)
     canvas.create_line(X, graphLineY, X, graphLineY + 5, fill=axisColour, width=2)
 
 def drawYTickAndLabel(value, label):
-    global canvas, graphLabelX
+    global canvas, graphLabelX, labelFont
     Y = getYFromValue(value)
-    canvas.create_text(graphLabelX, Y, text=label)
+    canvas.create_text(graphLabelX, Y, text=label, fill=statusMessageColour, font=labelFont)
 
 def drawGraphAxis():
     global canvas, startX, startY, graphLineX, graphLineY, axisHeight, axisLength, axisColour
@@ -55,6 +61,12 @@ def drawGraphAxis():
     drawYTickAndLabel(50, "50")
     drawYTickAndLabel(-50, "-50")
     drawYTickAndLabel(-100, "-100")
+
+def drawLegend():
+    canvas.create_text(650, 400, text="Sensor A", fill=statusMessageColour, font=labelFont)
+    canvas.create_line(700, 400, 750, 400, fill=sensorAColour, width=2)
+    canvas.create_text(650, 420, text="Sensor B", fill=statusMessageColour, font=labelFont)
+    canvas.create_line(700, 420, 750, 420, fill=sensorBColour, width=2)
 
 def plotReading(angle, value, colour):
     global canvas
@@ -71,23 +83,22 @@ def positionMessage(message):
     canvas.itemconfig(positionTextID, text=message)
 
 def init():
-    global canvas, root, statusTextID, positionTextID
+    global canvas, root, statusTextID, positionTextID, labelFont
     root = Tk()
-    canvas = Canvas(root, width=canvasWidth, height=canvasHeight)
+    canvas = Canvas(root, width=canvasWidth, height=canvasHeight, bg=canvasColour)
     canvas.grid(column=0, row=0, sticky=(N, W, E, S))
-    statusTextID = canvas.create_text(5, 5, anchor="nw")
-    positionTextID = canvas.create_text(5, 400, anchor="nw")
+
+    statusFont = font.Font(family="Helvetica", size=18, weight="bold")
+    positionFont = font.Font(family="Helvetica", size=36, weight="bold")
+    labelFont = font.Font(family="Helvetica", size=12, weight="bold")
+
+    statusTextID = canvas.create_text(5, 5, anchor="nw", fill=statusMessageColour, font=statusFont)
+    positionTextID = canvas.create_text(5, 390, anchor="nw", fill=statusMessageColour, font=positionFont)
 
 def loop():
     global root
     root.mainloop()
 
-#drawGraphAxis()
-#
-#plotReading(45, 50, sensorAColour)
-#plotReading(50, 55, sensorAColour)
-#plotReading(55, 60, sensorAColour)
-#
-#plotReading(45, -50, sensorBColour)
-#plotReading(50, -55, sensorBColour)
-#plotReading(55, -60, sensorBColour)
+init()
+drawGraphAxis()
+drawLegend()

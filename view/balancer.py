@@ -1,15 +1,22 @@
 import graphWindow as gw
+import math
 
-gw.init()
-gw.drawGraphAxis()
+sensorAReadings = []
+sensorBReadings = []
 
-gw.plotReading(45, 50, gw.sensorAColour)
-gw.plotReading(50, 55, gw.sensorAColour)
-gw.plotReading(55, 60, gw.sensorAColour)
+def initArrays():
+    for i in range(360):
+        r = math.radians(i)
+        sensorAReadings.append(math.sin(r)*50)
+        sensorBReadings.append(math.cos(r)*50)
 
-gw.plotReading(45, -50, gw.sensorBColour)
-gw.plotReading(50, -55, gw.sensorBColour)
-gw.plotReading(55, -60, gw.sensorBColour)
+def plotArrays():
+    for i in range(360):
+        gw.plotReading(i, sensorAReadings[i], gw.sensorAColour)
+        gw.plotReading(i, sensorBReadings[i], gw.sensorBColour)
+
+initArrays()
+plotArrays()
 
 gw.statusMessage("Unsynced!")
 gw.positionMessage("Angle: 0°")
