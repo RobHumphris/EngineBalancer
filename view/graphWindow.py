@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter import font
+from fullScreen import *
 
 canvasWidth = 800
 canvasHeight = 450
@@ -85,7 +86,9 @@ def positionMessage(message):
 def init():
     global canvas, root, statusTextID, positionTextID, labelFont
     root = Tk()
-    canvas = Canvas(root, width=canvasWidth, height=canvasHeight, bg=canvasColour)
+        
+    fs = FullScreen(root)
+    canvas = Canvas(fs, width=canvasWidth, height=canvasHeight, bg=canvasColour)
     canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 
     statusFont = font.Font(family="Helvetica", size=18, weight="bold")
