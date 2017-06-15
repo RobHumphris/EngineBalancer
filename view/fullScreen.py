@@ -4,8 +4,7 @@ class FullScreen(Frame):
     def __init__(self, master=None, width=0.8, height=0.6, useFactor=True):
         Frame.__init__(self, master)
         self.pack(side=TOP, fill=BOTH, expand=YES)
-
-        # get screen width and height
+        
         ws = self.master.winfo_screenwidth()
         hs = self.master.winfo_screenheight()
         w = (useFactor and ws*width) or width

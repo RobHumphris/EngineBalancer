@@ -83,14 +83,20 @@ def positionMessage(message):
     global canvas, positionTextID
     canvas.itemconfig(positionTextID, text=message)
 
+def callback():
+    print("click!")
+
 def init():
     global canvas, root, statusTextID, positionTextID, labelFont
     root = Tk()
-        
+
     fs = FullScreen(root)
     canvas = Canvas(fs, width=canvasWidth, height=canvasHeight, bg=canvasColour)
     canvas.grid(column=0, row=0, sticky=(N, W, E, S))
 
+    b = Button(fs, text="OK", command=callback)
+    b.pack()
+    
     statusFont = font.Font(family="Helvetica", size=18, weight="bold")
     positionFont = font.Font(family="Helvetica", size=36, weight="bold")
     labelFont = font.Font(family="Helvetica", size=12, weight="bold")
