@@ -3,9 +3,8 @@ import pygame
 import math
 from graph_window import *
 from button import *
+import settings as cfg
 
-SENSORACOLOUR = (0xFF, 0x00, 0x00)
-SENSORBCOLOUR = (0x00, 0x00, 0xFF)
 sensorAReadings = []
 sensorBReadings = []
 
@@ -17,8 +16,8 @@ def init_arrays():
 
 def plot_arrays(graph):
     for i in range(360):
-        graph.plotReading(i, sensorAReadings[i], SENSORACOLOUR)
-        graph.plotReading(i, sensorBReadings[i], SENSORBCOLOUR)
+        graph.plotReading(i, sensorAReadings[i], cfg.SENSORACOLOUR)
+        graph.plotReading(i, sensorBReadings[i], cfg.SENSORBCOLOUR)
 
 def mousebuttondown():
     pos = pygame.mouse.get_pos()
@@ -32,8 +31,8 @@ def my_great_function():
 pygame.init()
 pygame.font.init()
 
-screen = pygame.display.set_mode([WIDTH, HEIGHT])
-screen.fill(SCREEN)
+screen = pygame.display.set_mode([cfg.WIDTH, cfg.HEIGHT])
+screen.fill(cfg.SCREEN)
 
 graph = GraphWindow(screen)
 graph.statusMessage("Unsynced!")

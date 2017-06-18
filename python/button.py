@@ -1,15 +1,17 @@
+# https://pythonprogramming.net/pygame-buttons-part-1-button-rectangle/
 import pygame
+import settings as cfg
 
-UNCLICKED = (0x2B, 0x4E, 0x72)
-CLICKED = (0x27, 0x90, 0xB0)
-FOREGROUND = (0xFF, 0xFF, 0xFF)
+#UNCLICKED = (0x2B, 0x4E, 0x72)
+#CLICKED = (0x27, 0x90, 0xB0)
+#FOREGROUND = (0xFF, 0xFF, 0xFF)
 class Button():
     def __init__(self, screen, txt, location, action):
-        self.color = UNCLICKED
+        self.color = cfg.BTN_UNCLICKED
         self.bg = self.color
-        self.fg = FOREGROUND
+        self.fg = cfg.BTN_FOREGROUND
         self.size = (80, 30)
-        self.font = pygame.font.SysFont("Helvetica", 12, "bold")
+        self.font = pygame.font.SysFont(cfg.FONT_NAME, 12, "bold")
         self.screen = screen
         self.txt = txt
         self.txt_surf = self.font.render(self.txt, 1, self.fg)
@@ -29,7 +31,7 @@ class Button():
             self.bg = (200, 200, 200)
 
     def clicked(self):
-        self.surface.fill(CLICKED)
+        self.surface.fill(cfg.BTN_CLICKED)
         self.surface.blit(self.txt_surf, self.txt_rect)
         self.screen.blit(self.surface, self.rect)
 
@@ -41,4 +43,4 @@ class Button():
     def call_back(self):
         self.clicked()
         self.call_back_()
-        #self.unclicked()
+        self.unclicked()
