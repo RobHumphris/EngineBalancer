@@ -23,6 +23,7 @@ class GraphWindow():
     def __init__(self, screen):
         self.screen = screen
         self.surface = pygame.surface.Surface((WIDTH, HEIGHT))
+        self.rect = self.surface.get_rect(center=(WIDTH/2,HEIGHT/2))
         self.status_font = pygame.font.SysFont("Helvetica", 18, "bold")
         self.position_font = pygame.font.SysFont("Helvetica", 36, "bold")
         self.label_font = pygame.font.SysFont("Helvetica", 12, "bold")
@@ -40,21 +41,21 @@ class GraphWindow():
 
     def create_text(self, x, y, text, colour, font):
         label = font.render(text, 1, colour)
-        self.screen.blit(label, (x, y))
+        self.surface.blit(label, (x, y))
 
     def drawXTickAndLabel(self, angle, label):
         x = self.getXFromAngle(angle)
-        pygame.draw.aaline(self.screen, AXISCOLOUR, [x, GRAPHLINEY-5], [x, GRAPHLINEY+5], 2)
+        pygame.draw.aaline(self.surface, AXISCOLOUR, [x, GRAPHLINEY-5], [x, GRAPHLINEY+5], 2)
         self.create_text(x, GRAPHLABLEY, label, STATUSCOLOUR, self.label_font)
 
     def drawYTickAndLabel(self, value, label):
         y = self.getYFromValue(value)
-        pygame.draw.aaline(self.screen, AXISCOLOUR, [GRAPHLINEX-5, y], [GRAPHLINEX+5, y], 2)
+        pygame.draw.aaline(self.surface, AXISCOLOUR, [GRAPHLINEX-5, y], [GRAPHLINEX+5, y], 2)
         self.create_text(GRAPHLABLEX, y, label, STATUSCOLOUR, self.label_font)
 
     def drawGraphAxis(self):
-        pygame.draw.aaline(self.screen, AXISCOLOUR, [STARTX, GRAPHLINEY], [AXISLENGTH + STARTX, GRAPHLINEY], 2)
-        pygame.draw.aaline(self.screen, AXISCOLOUR, [GRAPHLINEX, STARTY], [GRAPHLINEX, AXISHEIGHT + STARTY], 2)
+        pygame.draw.aaline(self.surface, AXISCOLOUR, [STARTX, GRAPHLINEY], [AXISLENGTH + STARTX, GRAPHLINEY], 2)
+        pygame.draw.aaline(self.surface, AXISCOLOUR, [GRAPHLINEX, STARTY], [GRAPHLINEX, AXISHEIGHT + STARTY], 2)
         self.drawXTickAndLabel(0, "0")
         self.drawXTickAndLabel(90, "90")
         self.drawXTickAndLabel(180, "180")
@@ -67,9 +68,9 @@ class GraphWindow():
 
     def drawLegend(self):
         self.create_text(650, 400, "Sensor A", STATUSCOLOUR, self.label_font)
-        pygame.draw.aaline(self.screen, SENSORACOLOUR, [720, 406], [770, 406], 2)
+        pygame.draw.aaline(self.surface, SENSORACOLOUR, [720, 406], [770, 406], 2)
         self.create_text(650, 420, "Sensor B", STATUSCOLOUR, self.label_font)
-        pygame.draw.aaline(self.screen, SENSORBCOLOUR, [720, 427], [770, 427], 2)
+        pygame.draw.aaline(self.surface, SENSORBCOLOUR, [720, 427], [770, 427], 2)
 
     def statusMessage(self, message):
         self.create_text(5, 5, "Status: " + message, STATUSCOLOUR, self.status_font)
@@ -80,8 +81,9 @@ class GraphWindow():
     def plotReading(self, angle, value, colour):
         x = self.getXFromAngle(angle)
         y = self.getYFromValue(value)
-        pygame.draw.aaline(self.screen, colour, [x, y], [x+2, y], 2)
+        pygame.draw.aaline(self.surface, colour, [x, y], [x+2, y], 2)
 
     def draw(self):
         self.drawGraphAxis()
         self.drawLegend()
+        self.screen.blit(self.surface, self.rect)

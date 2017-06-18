@@ -8,12 +8,12 @@ canvasHeight = 450
 axisLength = 720
 axisHeight = 400
 
-axisColour = "#94BA65"
-canvasColour = "#4E4D4A"
+axisColour = "#94BA65" #Green
+canvasColour = "#4E4D4A" #Dark
 sensorAColour = "#FF0000"
 sensorBColour = "#0000FF"
-statusMessageColour = "#2790B0"
-zColour = "#2B4E72"
+statusMessageColour = "#2790B0" #Blue
+zColour = "#2B4E72" # Darkblue
 
 startX = 40
 startY = 25

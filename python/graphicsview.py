@@ -1,3 +1,4 @@
+# Colours from http://www.colourlovers.com/palette/38562/Hands_On
 import pygame
 import math
 from graph_window import *
@@ -60,8 +61,6 @@ while not done:
         elif event.type == pygame.MOUSEBUTTONDOWN:
             mousebuttondown()
 
-    #pygame.display.flip()
     pygame.display.update()
-
 
 pygame.quit()
