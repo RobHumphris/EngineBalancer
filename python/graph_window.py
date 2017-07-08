@@ -24,6 +24,9 @@ class GraphWindow():
     def create_text(self, x, y, text, colour, font):
         label = font.render(text, 1, colour)
         self.surface.blit(label, (x, y))
+        #labelpos = label.get_rect()
+        #labelpos.topleft = (x, y)
+        #self.screen.blit(label, labelpos)
 
     def drawXTickAndLabel(self, angle, label):
         x = self.getXFromAngle(angle)

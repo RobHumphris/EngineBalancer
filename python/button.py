@@ -36,7 +36,7 @@ class Button():
         self.screen.blit(self.surface, self.rect)
 
     def unclicked(self):
-        self.surface.fill(self.bg)
+        self.surface.fill(cfg.BTN_UNCLICKED)
         self.surface.blit(self.txt_surf, self.txt_rect)
         self.screen.blit(self.surface, self.rect)
 
