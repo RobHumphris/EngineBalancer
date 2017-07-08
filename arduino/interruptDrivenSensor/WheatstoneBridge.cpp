@@ -19,18 +19,20 @@
 */
 WheatstoneBridge::WheatstoneBridge(byte AnalogPin, int inputMin, int inputMax, int outputMin, int outputMax)
 {
-	iPin = AnalogPin;
-	pinMode(iPin, INPUT);
-	iMin = inputMin;
-	iMax = inputMax;
-	oMin = outputMin;
-	oMax = outputMax;
+  iPin = AnalogPin;
+  pinMode(iPin, INPUT);
+  iMin = inputMin;
+  iMax = inputMax;
+  oMin = outputMin;
+  oMax = outputMax;
+  lastForceADCRaw = 0;
+  lastForce = 0;
 }
 
 // < Destructor >
 WheatstoneBridge::~WheatstoneBridge()
 {
-	// Nothing to destruct
+  // Nothing to destruct
 }
 
 // measureForce
@@ -38,14 +40,11 @@ WheatstoneBridge::~WheatstoneBridge()
 */
 int WheatstoneBridge::measureForce()
 {
-	// Obtain ADC raw measurement
-	lastForceADCRaw = analogRead(iPin);
-	
-	// 
-	lastForce = map(lastForceADCRaw, iMin, iMax, oMin, oMax) + oMin;
-	
-	// Return value
-	return (lastForce);
+  // Obtain ADC raw measurement
+  lastForceADCRaw = analogRead(iPin);
+  lastForce = map(lastForceADCRaw, iMin, iMax, oMin, oMax) + oMin;
+  // Return value
+  return (lastForce);
 }
 
 // getLastForce
@@ -53,7 +52,7 @@ int WheatstoneBridge::measureForce()
 */
 int WheatstoneBridge::getLastForce()
 {
-	return (lastForce);
+  return (lastForce);
 }
 
 // getLastForceRawADC
@@ -61,7 +60,7 @@ int WheatstoneBridge::getLastForce()
 */
 int WheatstoneBridge::getLastForceRawADC()
 {
-	return (lastForceADCRaw);
+  return (lastForceADCRaw);
 }
 
 // linearCalibration
@@ -73,10 +72,10 @@ int WheatstoneBridge::getLastForceRawADC()
 */
 void WheatstoneBridge::linearCalibration(int inputMin, int inputMax, int outputMin, int outputMax)
 {
-	iMin = inputMin;
-	iMax = inputMax;
-	oMin = outputMin;
-	oMax = outputMax;
+  iMin = inputMin;
+  iMax = inputMax;
+  oMin = outputMin;
+  oMax = outputMax;
 }
 
 /* Wheatstone Bridge Interface - Library */

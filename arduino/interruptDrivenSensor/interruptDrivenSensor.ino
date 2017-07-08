@@ -1,22 +1,27 @@
 #include "WheatstoneBridge.h"
+#include <Arduino.h>
+#define NOT_AN_INTERRUPT -1 
+#define TRIGGER_TEETH 360
 
-const int time_step = 500 ; // reading every 0.5s
 const int triggerPin = 2;
-const int directionPin = 3;
-const int syncPin = 4;
-const int triggerTeeth = 4; // 180;
+const int syncPin = 3;
+const int directionPin = 4;
 
-long time = 0;
-unsigned long previousTimeStamp = micros();
-
+unsigned long previousTimeStamp;
 bool synced = false;
 long toothCount = 0;
+long syncCount = 0;
+float rpm = 0;
 int wheelDirection = 0;
-int strainSensorA[triggerTeeth];
-int strainSensorB[triggerTeeth];
+int strainSensorA[TRIGGER_TEETH];
+int strainSensorB[TRIGGER_TEETH];
+bool go = false;
 
-WheatstoneBridge wsbStrainA(A0, 365, 675, 0, 1000);
-WheatstoneBridge wsbStrainB(A1, 365, 675, 0, 1000);
+//WheatstoneBridge wsbStrainA(A0, 365, 675, 0, 1000);
+//WheatstoneBridge wsbStrainB(A1, 365, 675, 0, 1000);
+
+WheatstoneBridge wsb_strain1(A0, 365, 675, 0, 1000);
+WheatstoneBridge wsb_strain2(A1, 365, 675, 0, 1000);
 
 void setup() {
   pinMode(triggerPin, INPUT);
@@ -28,67 +33,75 @@ void setup() {
   pinMode(syncPin, INPUT);
   digitalWrite(syncPin, HIGH);
   
-  attachInterrupt(digitalPinToInterrupt(triggerPin), triggerPinInterrupt, RISING);
-  Serial.begin(9600); //  setup serial baudrate
+  //attachInterrupt(digitalPinToInterrupt(triggerPin), triggerPinInterrupt, RISING);
+  //attachInterrupt(digitalPinToInterrupt(syncPin), syncPinInterrupt, RISING); 
+  
+  Serial.begin(115200);
   Serial.println("Setup Complete.");
+  previousTimeStamp = 0;
 }
 
 void loop() {
-  int strain = wsbStrainA.measureForce();
-  int raw = wsbStrainA.getLastForceRawADC();
+  int i;
+  #if 0
+  if (go) {
+    if (synced) {
+      if (rpm < 200) {
+        // Below 200 rpm we return Angle
+        Serial.write('P');
+        Serial.println(toothCount);
+      }
+      else {
+        // Above 
+        Serial.write('R');
+        Serial.print(rpm);
+        for(i=0; i<TRIGGER_TEETH; i++) {
+          Serial.write(',');
+          Serial.print(strainSensorA[i]);
+          Serial.write(',');
+          Serial.print(strainSensorB[i]);
+        }  
+        Serial.println();
+      }
+    } else {
+      Serial.println("NO");
+    }
+    go = false;
+  }
+  else {
+    Serial.print("Strain A: ");
+    Serial.print(wsb_strain1.measureForce());
+    Serial.print("\tStrain B: ");
+    Serial.println(wsb_strain2.measureForce());
+  }
+  #endif
   
-  if(millis() > time_step+time) {
-    Serial.print("Synced: ");
-    Serial.print(synced);
-    
-    Serial.print("\tTooth Count: ");
-    Serial.print(toothCount);
-    
-    Serial.print("\tWheel Direction: ");
-    Serial.print(wheelDirection);
-
-    Serial.print("\tStrain A: ");
-    Serial.print(strain);
-
-    Serial.print("\tRaw A: ");
-    Serial.print(raw);
-    
-    Serial.println('\n'); 
-    time = millis();
-  }
+  //Serial.print(wsb_strain1.measureForce());
+  //Serial.print(",");
+  Serial.println(wsb_strain1.measureForce());
 }
 
-void checkSyncPin() {
-  int sync = digitalRead(syncPin);
-  if (sync == LOW) {
-    synced = true;
-    toothCount = 0;
-  }
-}
-
-void checkDirection() {
-  int direction = digitalRead(directionPin);
-  wheelDirection = (direction == LOW) ? 1 : -1; 
-  toothCount += wheelDirection;
-  if (toothCount < 0) {
-    toothCount = triggerTeeth;
-  } else if (toothCount > triggerTeeth) {
-    toothCount = 0;
-  }
-}
-
-void  getStrainReadings() {
-  //strainSensorA[toothCount] = wsbStrainA.measureForce();
-  //strainSensorB[toothCount] = wsbStrainB.measureForce(); 
+void syncPinInterrupt() {
+  unsigned long ts = millis();
+  synced = true;
+  toothCount = (wheelDirection == 1) ? -1 : 360;
+  syncCount++;
+  rpm = 60000 /( ts - previousTimeStamp);
+  previousTimeStamp = ts;
+  go = true;
 }
 
 void triggerPinInterrupt() {
-  unsigned long timestamp = micros();
   if (synced) {
-    checkDirection();
-    getStrainReadings();
+    wheelDirection = (digitalRead(directionPin) == LOW) ? -1 : 1; 
+    toothCount += wheelDirection;
+    if ((toothCount >=0) && (toothCount < TRIGGER_TEETH)) {
+      strainSensorA[toothCount] = wsb_strain1.measureForce();
+      strainSensorB[toothCount] = wsb_strain2.measureForce(); 
+    }
   } 
-  checkSyncPin();
-  previousTimeStamp = timestamp;
+  if (rpm < 200) {
+    go = true;
+  }
 }
 

@@ -23,28 +23,26 @@
 
 class WheatstoneBridge
 {
-	public:
-		WheatstoneBridge(byte AnalogPin, int inputMin = 0, int inputMax = 1023, int outputMin = 0, int outputMax = 65535);
-		~WheatstoneBridge();
-		int measureForce();
-		int getLastForce();
-		int getLastForceRawADC();
-		void linearCalibration(int inputMin = 0, int inputMax = 1023, int outputMin = 0, int outputMax = 65535);
+  public:
+    WheatstoneBridge(byte AnalogPin, int inputMin = 0, int inputMax = 1023, int outputMin = 0, int outputMax = 65535);
+    ~WheatstoneBridge();
+    int measureForce();
+    int getLastForce();
+    int getLastForceRawADC();
+    void linearCalibration(int inputMin = 0, int inputMax = 1023, int outputMin = 0, int outputMax = 65535);
 	
-	private:
-	// < Local attributes >
-		// Hardware
-		byte iPin = A1;			// Defaults to "Strain 2"
+  private:
+    // Hardware
+    byte iPin; // = A1;			// Defaults to "Strain 2"
+    // Calibration
+    int iMin; // = 0;
+    int iMax; // = 1023;
+    int oMin; // = 0;
+    int oMax; // = 65535;
 		
-		// Calibration
-		int iMin = 0;
-		int iMax = 1023;
-		int oMin = 0;
-		int oMax = 65535;
-		
-		// Measurements
-		int lastForceADCRaw = 0;
-		int lastForce = 0;
+    // Measurements
+    int lastForceADCRaw; // = 0;
+    int lastForce; // = 0;
 };
 
 #endif
