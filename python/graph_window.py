@@ -1,6 +1,6 @@
 import pygame
 import settings as cfg
-from label import *
+from label import Label
 
 class GraphWindow():
     def __init__(self, screen):

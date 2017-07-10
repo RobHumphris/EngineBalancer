@@ -32,7 +32,7 @@ def init_serial():
     port.open()
 
 def init_arrays():
-    for i in range(cfg.ARRAY_SIZE):
+    for i in range(cfg.ARRAY_SIZE+1):
         sensorAReadings.append(0)
         sensorBReadings.append(0)
 
@@ -40,14 +40,14 @@ def plot_arrays():
     i = 0
     while i < cfg.ARRAY_SIZE:
         graph.plotReading(i, sensorAReadings[i], sensorAReadings[i+1], cfg.SENSORACOLOUR)
-        graph.plotReading(i, sensorBReadings[i], sensorAReadings[i+1], cfg.SENSORBCOLOUR)
-        i += 2        
+        graph.plotReading(i, sensorBReadings[i], sensorBReadings[i+1], cfg.SENSORBCOLOUR)
+        i += 1        
 
 def mousebuttondown():
     pos = pygame.mouse.get_pos()
-    for button in buttons:
-        if button.rect.collidepoint(pos):
-            button.call_back()
+    #for button in buttons:
+    #    if button.rect.collidepoint(pos):
+    #        button.call_back()
 
 def my_great_function():
     print("Great! " * 5)
@@ -89,6 +89,7 @@ def handle_line(line):
 showUnsyncedMessages()
 graph.draw()
 init_arrays()
+plot_arrays()
 init_serial()
 
 #button = Button(screen, "Great!", (60, 30), my_great_function)

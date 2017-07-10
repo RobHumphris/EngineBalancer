@@ -39,10 +39,10 @@ void loop() {
 
 void populateArrays() {
   int i;
-
   for(i=0; i<360; i++) {
-    strainSensorA[i] = sin(i)*50;
-    strainSensorB[i] = cos(i)*50;
+    //float rad = radians(i);
+    strainSensorA[i] = i % 100; //sin(rad)*50;
+    strainSensorB[i] =  -50; //cos(rad)*50;
   }
 }
 
