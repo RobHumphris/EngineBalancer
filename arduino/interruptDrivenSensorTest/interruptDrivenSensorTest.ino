@@ -1,4 +1,3 @@
-
 #define TRIGGER_TEETH 360
 #define BAUD_RATE 115200
 int strainSensorA[TRIGGER_TEETH];
