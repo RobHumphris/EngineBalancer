@@ -5,6 +5,8 @@ from graph_window import *
 from button import *
 import settings as cfg
 
+sensor_a_zero = 0
+sensor_b_zero = 0
 sensorAReadings = []
 sensorBReadings = []
 buttons = []
@@ -75,14 +77,21 @@ def showBalanceGraph(line):
         parse_position = rpm_segement[1]
         i = 0
         max_i_size = 178
-        while ((i < 89) and (line[parse_position] != 13)):
+        while ((i < 89) and (line[parse_position] != 10)):
             a = bytesToInt(line, parse_position, 44)
-            sensorAReadings[i] = a[0] - 327
+            sensorAReadings[i] = (a[0] - sensor_a_zero)
             b = bytesToInt(line, a[1], 44)
-            sensorBReadings[i] = b[0]    
+            sensorBReadings[i] = (b[0] - sensor_b_zero)
             parse_position = b[1]
             i += 1
         plot_arrays()
+
+def handleZeroCalibration(line):
+    tmp = bytesToInt(line, 1, 44)
+    sensor_a_zero = tmp[0]
+    tmp = bytesToInt(line, tmp[1], 10)
+    sensor_b_zero = tmp[0]
+    print("Channel A Zero: " + str(sensor_b_zero) + " Channel B Zero: " + str(sensor_b_zero))
 
 def handle_line(line):
     if (line != b''):
@@ -92,6 +101,8 @@ def handle_line(line):
             showPositionMessages(str(bytesToInt(line, 1, 13)[0]))
         elif(line[0] == 82):
             showBalanceGraph(line)
+        elif(line[0] == 67):
+            handleZeroCalibration(line)
 
 showUnsyncedMessages()
 graph.draw()
