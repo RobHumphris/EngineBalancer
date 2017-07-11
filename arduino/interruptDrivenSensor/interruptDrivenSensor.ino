@@ -1,7 +1,13 @@
-#include "WheatstoneBridge.h"
+ #include "WheatstoneBridge.h"
 #include <Arduino.h>
 #define NOT_AN_INTERRUPT -1 
 #define TRIGGER_TEETH 360
+#define _BAUD_RATE 256000
+#define BAUD_RATE 115200
+#define MODULUS 4
+#define RPM_THRESHOLD 100
+#define BALANCE_THRESHOLD_MIN 450
+#define BALANCE_THRESHOLD_MAX 550
 
 const int triggerPin = 2;
 const int syncPin = 3;
@@ -15,15 +21,14 @@ float rpm = 0;
 int wheelDirection = 0;
 int strainSensorA[TRIGGER_TEETH];
 int strainSensorB[TRIGGER_TEETH];
+size_t sensorArraySize = sizeof(sensorArraySize);
 bool go = false;
-
-//WheatstoneBridge wsbStrainA(A0, 365, 675, 0, 1000);
-//WheatstoneBridge wsbStrainB(A1, 365, 675, 0, 1000);
-
-WheatstoneBridge wsb_strain1(A0, 365, 675, 0, 1000);
-WheatstoneBridge wsb_strain2(A1, 365, 675, 0, 1000);
+int count = 0;
 
 void setup() {
+  pinMode(A0, INPUT);
+  pinMode(A1, INPUT);
+  
   pinMode(triggerPin, INPUT);
   digitalWrite(triggerPin, HIGH);
 
@@ -33,52 +38,58 @@ void setup() {
   pinMode(syncPin, INPUT);
   digitalWrite(syncPin, HIGH);
   
-  //attachInterrupt(digitalPinToInterrupt(triggerPin), triggerPinInterrupt, RISING);
-  //attachInterrupt(digitalPinToInterrupt(syncPin), syncPinInterrupt, RISING); 
+  attachInterrupt(digitalPinToInterrupt(triggerPin), triggerPinInterrupt, RISING);
+  attachInterrupt(digitalPinToInterrupt(syncPin), syncPinInterrupt, RISING); 
   
-  Serial.begin(115200);
+  Serial.begin(BAUD_RATE);
   Serial.println("Setup Complete.");
   previousTimeStamp = 0;
 }
 
+int min = 999;
+int max = -999;
+
 void loop() {
   int i;
-  #if 0
+  #if 1
   if (go) {
     if (synced) {
-      if (rpm < 200) {
-        // Below 200 rpm we return Angle
+      if (rpm < RPM_THRESHOLD) {
         Serial.write('P');
         Serial.println(toothCount);
       }
       else {
-        // Above 
-        Serial.write('R');
-        Serial.print(rpm);
-        for(i=0; i<TRIGGER_TEETH; i++) {
-          Serial.write(',');
-          Serial.print(strainSensorA[i]);
-          Serial.write(',');
-          Serial.print(strainSensorB[i]);
-        }  
-        Serial.println();
+        if ((rpm > BALANCE_THRESHOLD_MIN) && (rpm < BALANCE_THRESHOLD_MAX)) {
+          Serial.write('R');
+          Serial.print((int)rpm);
+          for(i=0; i<TRIGGER_TEETH-MODULUS; i+=MODULUS) {
+            Serial.write(',');
+            Serial.print(strainSensorA[i]);
+            Serial.write(',');
+            Serial.print(strainSensorB[i]);
+          }
+          Serial.println();
+        }
       }
     } else {
       Serial.println("NO");
     }
+    Serial.flush();
     go = false;
   }
-  else {
-    Serial.print("Strain A: ");
-    Serial.print(wsb_strain1.measureForce());
-    Serial.print("\tStrain B: ");
-    Serial.println(wsb_strain2.measureForce());
-  }
   #endif
-  
-  //Serial.print(wsb_strain1.measureForce());
-  //Serial.print(",");
-  Serial.println(wsb_strain1.measureForce());
+  #if 0
+    int a = analogRead(A0);
+    int b = analogRead(A1);
+    min = (a < min) ? a : min;
+    max = (a > max) ? a : max;    
+    Serial.print(min);
+    Serial.print(',');
+    Serial.print(max);
+    Serial.print(':');
+    Serial.print(a);
+    Serial.println();
+  #endif
 }
 
 void syncPinInterrupt() {
@@ -86,21 +97,25 @@ void syncPinInterrupt() {
   synced = true;
   toothCount = (wheelDirection == 1) ? -1 : 360;
   syncCount++;
-  rpm = 60000 /( ts - previousTimeStamp);
+  rpm = 60000 / (ts - previousTimeStamp);
   previousTimeStamp = ts;
   go = true;
+}
+
+void readStrainSensors(int tooth) {
+  strainSensorA[toothCount] = analogRead(A0); 
+  strainSensorB[toothCount] = analogRead(A1);
 }
 
 void triggerPinInterrupt() {
   if (synced) {
     wheelDirection = (digitalRead(directionPin) == LOW) ? -1 : 1; 
     toothCount += wheelDirection;
-    if ((toothCount >=0) && (toothCount < TRIGGER_TEETH)) {
-      strainSensorA[toothCount] = wsb_strain1.measureForce();
-      strainSensorB[toothCount] = wsb_strain2.measureForce(); 
+    if ((toothCount >=0) && (toothCount < TRIGGER_TEETH) && (toothCount % MODULUS == 0)) {
+      readStrainSensors(toothCount);
     }
-  } 
-  if (rpm < 200) {
+  }
+  if (rpm < RPM_THRESHOLD) {
     go = true;
   }
 }

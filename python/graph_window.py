@@ -19,12 +19,13 @@ class GraphWindow():
         return (angle * cfg.XSCALAR) + cfg.STARTX
 
     def getYFromValue(self, value):
+        gain = 1
         retval = cfg.AXISHEIGHT / 2
         if value > 0:
             retval = retval - (value * 2)
         elif value < 0:
             retval = retval + (0 - value * 2)
-        return retval + cfg.STARTY
+        return (retval * gain) + cfg.STARTY 
 
     def create_text(self, x, y, text, text_colour, back_colour, font):
         label = font.render(text, 1, text_colour, back_colour)
@@ -64,10 +65,14 @@ class GraphWindow():
 
     def plotReading(self, angle, v1, v2, colour):
         start = [self.getXFromAngle(angle), self.getYFromValue(v1)]
-        end = [self.getXFromAngle(angle+1), self.getYFromValue(v2)]
+        end = [self.getXFromAngle(angle+4), self.getYFromValue(v2)]
         pygame.draw.aaline(self.surface, colour, start, end, 2)
 
     def draw(self):
         self.drawGraphAxis()
         self.drawLegend()
         self.screen.blit(self.surface, self.rect)
+
+    def clear(self):
+        self.screen.fill(cfg.SCREEN)
+        self.draw()
