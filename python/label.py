@@ -11,11 +11,17 @@ class Label():
         self.font = font
         self.rect = rect
     
+    def _render(self, text):
+        label = self.font.render(text, 0, self.text_colour)
+        self.surface.blit(label, self.pos)
+        self.screen.blit(self.surface, self.rect)
+
     def render(self, text):   
         if (self.text != ""):
             old = self.font.render(self.text, 0, self.back_colour)
             self.surface.blit(old, self.pos)
-        label = self.font.render(text, 0, self.text_colour)
-        self.surface.blit(label, self.pos)
-        self.screen.blit(self.surface, self.rect)
+        self._render(text)
         self.text = text
+    
+    def refresh(self):
+        self._render(self.text)

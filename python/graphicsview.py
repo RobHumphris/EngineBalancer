@@ -1,6 +1,5 @@
 # Colours from http://www.colourlovers.com/palette/38562/Hands_On
 import pygame
-import math
 import serial
 from graph_window import *
 from button import *
@@ -8,6 +7,7 @@ import settings as cfg
 
 sensorAReadings = []
 sensorBReadings = []
+buttons = []
 port = serial.Serial()
 
 pygame.init()
@@ -39,21 +39,26 @@ def init_arrays():
 
 def plot_arrays():
     i = 0
+    graph.clear()
     while i < cfg.ARRAY_SIZE:
-        graph.plotReading(i, sensorAReadings[i], sensorAReadings[i+4], cfg.SENSORACOLOUR)
-        graph.plotReading(i, sensorBReadings[i], sensorBReadings[i+4], cfg.SENSORBCOLOUR)
-        i += 4        
+        graph.plotReading(i, sensorAReadings[i], sensorAReadings[i+1], cfg.SENSORACOLOUR)
+        graph.plotReading(i, sensorBReadings[i], sensorBReadings[i+1], cfg.SENSORBCOLOUR)
+        i += 1
+    graph.draw()  
+
+#def my_great_function():
+#    print("Clear")
+#    graph.clear()
+
+#button = Button(screen, "Clear", (60, 30), my_great_function)
+#buttons = [button]
+#button.draw()
 
 def mousebuttondown():
     pos = pygame.mouse.get_pos()
     for button in buttons:
         if button.rect.collidepoint(pos):
             button.call_back()
-
-def my_great_function():
-    print("Clear")
-    graph.clear()
-
 
 def showUnsyncedMessages():
     graph.statusMessage("Unsynced!")
@@ -65,21 +70,19 @@ def showPositionMessages(angleString):
     
 def showBalanceGraph(line):
     if (len(line) > 500):
-        print(line)
         rpm_segement = bytesToInt(line, 1, 44)
         graph.statusMessage("RPM: " + str(rpm_segement[0]))
         parse_position = rpm_segement[1]
         i = 0
-        max_i_size = 352
-        while ((i < max_i_size) and (line[parse_position] != 13)):
+        max_i_size = 178
+        while ((i < 89) and (line[parse_position] != 13)):
             a = bytesToInt(line, parse_position, 44)
             sensorAReadings[i] = a[0] - 327
             b = bytesToInt(line, a[1], 44)
             sensorBReadings[i] = b[0]    
             parse_position = b[1]
-            i += 4
+            i += 1
         plot_arrays()
-        graph.draw()
 
 def handle_line(line):
     if (line != b''):
@@ -96,12 +99,7 @@ init_arrays()
 plot_arrays()
 init_serial()
 
-button = Button(screen, "Clear", (60, 30), my_great_function)
-buttons = [button]
-button.draw()
-
 done = False
-
 while not done:
     handle_line(port.readline())
     for event in pygame.event.get():

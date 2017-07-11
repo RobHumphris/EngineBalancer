@@ -18,6 +18,9 @@ class GraphWindow():
     def getXFromAngle(self, angle):
         return (angle * cfg.XSCALAR) + cfg.STARTX
 
+    def getPlotXFromAngle(self, angle):
+        return (angle * cfg.PLOTXSCALAR) + cfg.STARTX
+
     def getYFromValue(self, value):
         gain = 1
         retval = cfg.AXISHEIGHT / 2
@@ -64,15 +67,16 @@ class GraphWindow():
         self.position.render("Angle: " + position + "°")
 
     def plotReading(self, angle, v1, v2, colour):
-        start = [self.getXFromAngle(angle), self.getYFromValue(v1)]
-        end = [self.getXFromAngle(angle+4), self.getYFromValue(v2)]
+        start = [self.getPlotXFromAngle(angle), self.getYFromValue(v1)]
+        end = [self.getPlotXFromAngle(angle+4), self.getYFromValue(v2)]
         pygame.draw.aaline(self.surface, colour, start, end, 2)
 
     def draw(self):
         self.drawGraphAxis()
         self.drawLegend()
+        self.status.refresh()
+        self.position.refresh()
         self.screen.blit(self.surface, self.rect)
 
     def clear(self):
-        self.screen.fill(cfg.SCREEN)
-        self.draw()
+        self.surface.fill(cfg.SCREEN)
