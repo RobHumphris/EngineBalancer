@@ -10,10 +10,10 @@ sensor_b_zero = 0
 sample_count = 0
 maximums_count = 0
 
-sensorAReadings = []
-sensorAMaximums = []
-sensorBReadings = []
-sensorBMaximums = []
+sensor_a_readings = []
+sensor_a_maximums = []
+sensor_b_readings = []
+sensor_b_maximums = []
 
 buttons = []
 port = serial.Serial()
@@ -42,8 +42,8 @@ def init_serial():
 
 def init_arrays():
     for i in range(cfg.ARRAY_SIZE+1):
-        sensorAReadings.append(0)
-        sensorBReadings.append(0)
+        sensor_a_readings.append(0)
+        sensor_b_readings.append(0)
 
 def plot_arrays():
     global sample_count
@@ -51,24 +51,16 @@ def plot_arrays():
     if (sample_count >  cfg.SAMPLE_COUNT) :
         sample_count = 0
         i = 0
-        sensorAReadings[i] = sensorAReadings[i] / cfg.SAMPLE_COUNT
-        sensorBReadings[i] = sensorBReadings[i] / cfg.SAMPLE_COUNT
+        sensor_a_readings[i] = sensor_a_readings[i] / cfg.SAMPLE_COUNT
+        sensor_b_readings[i] = sensor_b_readings[i] / cfg.SAMPLE_COUNT
         while i < cfg.ARRAY_SIZE:
             j = i+1
-            sensorAReadings[j] = sensorAReadings[j] / cfg.SAMPLE_COUNT
-            sensorBReadings[j] = sensorBReadings[j] / cfg.SAMPLE_COUNT
-            graph.plotReading(i, sensorAReadings[i], sensorAReadings[j], cfg.SENSORACOLOUR)
-            graph.plotReading(i, sensorBReadings[i], sensorBReadings[j], cfg.SENSORBCOLOUR)
+            sensor_a_readings[j] = sensor_a_readings[j] / cfg.SAMPLE_COUNT
+            sensor_b_readings[j] = sensor_b_readings[j] / cfg.SAMPLE_COUNT
+            graph.plotReading(i, sensor_a_readings[i], sensor_a_readings[j], cfg.SENSORACOLOUR)
+            graph.plotReading(i, sensor_b_readings[i], sensor_b_readings[j], cfg.SENSORBCOLOUR)
             i += 1
         graph.draw()  
- 
-#def my_great_function():
-#    print("Clear")
-#    graph.clear()
-
-#button = Button(screen, "Clear", (60, 30), my_great_function)
-#buttons = [button]
-#button.draw()
 
 def mousebuttondown():
     pos = pygame.mouse.get_pos()
@@ -84,23 +76,27 @@ def showPositionMessages(angleString):
     graph.statusMessage("Synced!")
     graph.positionMessage(angleString)
 
+def resetMaximums(avg_a, avg_b):
+    global sensor_a_maximums, sensor_b_maximums
+    sensor_a_maximums = []
+    sensor_a_maximums.append(avg_a)
+    sensor_b_maximums = []
+    sensor_b_maximums.append(avg_b)
+
 def handleLineMaximum(sensorAMax, sensorBMax):
-    global sensorAMaximums, sensorBMaximums
-    sensorAMaximums.append(sensorAMax)
-    sensorBMaximums.append(sensorBMax)
-    count = len(sensorAMaximums)
+    global sensor_a_maximums, sensor_b_maximums
+    sensor_a_maximums.append(sensorAMax)
+    sensor_b_maximums.append(sensorBMax)
+    count = len(sensor_a_maximums)
     if (count >= 10):
         acc_a = (0, 0)
         acc_b = (0, 0)
         for i in range(0, count):
-            acc_a = (acc_a[0] + sensorAMaximums[i][0], acc_a[1] + sensorAMaximums[i][1])
-            acc_b = (acc_b[0] + sensorBMaximums[i][0], acc_b[1] + sensorBMaximums[i][1])
+            acc_a = (acc_a[0] + sensor_a_maximums[i][0], acc_a[1] + sensor_a_maximums[i][1])
+            acc_b = (acc_b[0] + sensor_b_maximums[i][0], acc_b[1] + sensor_b_maximums[i][1])
         avg_a = ((acc_a[0] / count), (acc_a[1] / count))
         avg_b = ((acc_b[0] / count), (acc_b[1] / count))
-        sensorAMaximums = []
-        sensorAMaximums.append(avg_a)
-        sensorBMaximums = []
-        sensorBMaximums.append(avg_b)
+        resetMaximums(avg_a, avg_b)
         print("Peak Average A. Angle:" + str(round(avg_a[1], 2)) + "°  Value:" + str(round(avg_a[0], 2)))
         #print("Peak Average B. Angle:" + str(avg_b[1]) + "°  Value:" + str(avg_b[0]))    
 
@@ -110,28 +106,28 @@ def showBalanceGraph(line):
         graph.statusMessage("RPM: " + str(rpm_segement[0]))
         parse_position = rpm_segement[1]
         i = 0
-        sensorAMax = (0, 0)
-        sensorBMax = (0, 0)
+        sensor_a_max = (0, 0)
+        sensor_b_max = (0, 0)
         max_parse_position = len(line)
         try:
             while ((i < 89) and (parse_position < max_parse_position) and (line[parse_position] != 10)):
                 a = bytesToInt(line, parse_position, 44)
                 sensor_a = (a[0] - sensor_a_zero)
-                if (sensor_a >= sensorAMax[0]):
-                    sensorAMax = (sensor_a, i)
-                sensorAReadings[i] = sensorAReadings[i] + sensor_a
+                if (sensor_a >= sensor_a_max[0]):
+                    sensor_a_max = (sensor_a, (i * cfg.PLOTXSCALAR))
+                sensor_a_readings[i] = sensor_a_readings[i] + sensor_a
 
                 b = bytesToInt(line, a[1], 44)
                 sensor_b = (b[0] - sensor_b_zero)
-                if (sensor_b >= sensorBMax[0]):
-                    sensorBMax = (sensor_b, i)
-                sensorBReadings[i] = sensorBReadings[i] + sensor_b
+                if (sensor_b >= sensor_b_max[0]):
+                    sensor_b_max = (sensor_b, (i * cfg.PLOTXSCALAR))
+                sensor_b_readings[i] = sensor_b_readings[i] + sensor_b
 
                 parse_position = b[1]
                 i += 1
 
             plot_arrays()
-            handleLineMaximum(sensorAMax, sensorBMax)
+            handleLineMaximum(sensor_a_max, sensor_b_max)
         except:
             print("BANG! i=" + str(i) + " p pos: " + str(parse_position))
             raise
@@ -170,3 +166,11 @@ while not done:
             mousebuttondown()
     pygame.display.update()
 pygame.quit()
+
+#def my_great_function():
+#    print("Clear")
+#    graph.clear()
+
+#button = Button(screen, "Clear", (60, 30), my_great_function)
+#buttons = [button]
+#button.draw()
