@@ -68,7 +68,7 @@ class GraphWindow():
 
     def plotReading(self, angle, v1, v2, colour):
         start = [self.getPlotXFromAngle(angle), self.getYFromValue(v1)]
-        end = [self.getPlotXFromAngle(angle+4), self.getYFromValue(v2)]
+        end = [self.getPlotXFromAngle(angle+1), self.getYFromValue(v2)]
         pygame.draw.aaline(self.surface, colour, start, end, 2)
 
     def draw(self):

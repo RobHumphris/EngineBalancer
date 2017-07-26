@@ -1,5 +1,4 @@
 // ADC Settings from http://www.microsmart.co.za/technical/2014/03/01/advanced-arduino-adc/
-#include "WheatstoneBridge.h"
 #include <Arduino.h>
 #define NOT_AN_INTERRUPT -1 
 #define TRIGGER_TEETH 360
@@ -87,11 +86,7 @@ void loop() {
         }
       }
     } else {
-      Serial.print("NO");
-    }
-    Serial.flush();
-    go = false;
-  } else {
+      //Serial.print("NO");
       a = analogRead(A0);
       b = analogRead(A1);
       Serial.print("C,");
@@ -99,19 +94,31 @@ void loop() {
       Serial.write(',');
       Serial.println((int)b);
       Serial.flush();
+    }
+    Serial.flush();
+    go = false;
+  } else {
+      /*a = analogRead(A0);
+      b = analogRead(A1);
+      Serial.print("C,");
+      Serial.print((int)a);
+      Serial.write(',');
+      Serial.println((int)b);
+      Serial.flush();*/
   }
   #endif
   #if 0
-    int a = analogRead(A0);
-    int b = analogRead(A1);
+    a = analogRead(A0);
+    b = analogRead(A1);
     min = (a < min) ? a : min;
     max = (a > max) ? a : max;    
-    Serial.print(min);
-    Serial.print(',');
-    Serial.print(max);
-    Serial.print(':');
+    //Serial.print(min);
+    //Serial.print(',');
+    //Serial.print(max);
+    //Serial.print(':');
     Serial.print(a);
-    Serial.println();
+    Serial.print("  ");
+    Serial.println(b);
   #endif
   #if 0
     unsigned long _start = micros();

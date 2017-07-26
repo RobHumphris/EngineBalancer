@@ -5,10 +5,16 @@ from graph_window import *
 from button import *
 import settings as cfg
 
-sensor_a_zero = 0
+sensor_a_zero = 320
 sensor_b_zero = 0
+sample_count = 0
+maximums_count = 0
+
 sensorAReadings = []
+sensorAMaximums = []
 sensorBReadings = []
+sensorBMaximums = []
+
 buttons = []
 port = serial.Serial()
 
@@ -40,14 +46,22 @@ def init_arrays():
         sensorBReadings.append(0)
 
 def plot_arrays():
-    i = 0
-    graph.clear()
-    while i < cfg.ARRAY_SIZE:
-        graph.plotReading(i, sensorAReadings[i], sensorAReadings[i+1], cfg.SENSORACOLOUR)
-        graph.plotReading(i, sensorBReadings[i], sensorBReadings[i+1], cfg.SENSORBCOLOUR)
-        i += 1
-    graph.draw()  
-
+    global sample_count
+    sample_count = sample_count + 1
+    if (sample_count >  cfg.SAMPLE_COUNT) :
+        sample_count = 0
+        i = 0
+        sensorAReadings[i] = sensorAReadings[i] / cfg.SAMPLE_COUNT
+        sensorBReadings[i] = sensorBReadings[i] / cfg.SAMPLE_COUNT
+        while i < cfg.ARRAY_SIZE:
+            j = i+1
+            sensorAReadings[j] = sensorAReadings[j] / cfg.SAMPLE_COUNT
+            sensorBReadings[j] = sensorBReadings[j] / cfg.SAMPLE_COUNT
+            graph.plotReading(i, sensorAReadings[i], sensorAReadings[j], cfg.SENSORACOLOUR)
+            graph.plotReading(i, sensorBReadings[i], sensorBReadings[j], cfg.SENSORBCOLOUR)
+            i += 1
+        graph.draw()  
+ 
 #def my_great_function():
 #    print("Clear")
 #    graph.clear()
@@ -69,29 +83,65 @@ def showUnsyncedMessages():
 def showPositionMessages(angleString):
     graph.statusMessage("Synced!")
     graph.positionMessage(angleString)
-    
+
+def handleLineMaximum(sensorAMax, sensorBMax):
+    global sensorAMaximums, sensorBMaximums
+    sensorAMaximums.append(sensorAMax)
+    sensorBMaximums.append(sensorBMax)
+    count = len(sensorAMaximums)
+    if (count >= 10):
+        acc_a = (0, 0)
+        acc_b = (0, 0)
+        for i in range(0, count):
+            acc_a = (acc_a[0] + sensorAMaximums[i][0], acc_a[1] + sensorAMaximums[i][1])
+            acc_b = (acc_b[0] + sensorBMaximums[i][0], acc_b[1] + sensorBMaximums[i][1])
+        avg_a = ((acc_a[0] / count), (acc_a[1] / count))
+        avg_b = ((acc_b[0] / count), (acc_b[1] / count))
+        sensorAMaximums = []
+        sensorAMaximums.append(avg_a)
+        sensorBMaximums = []
+        sensorBMaximums.append(avg_b)
+        print("Peak Average A. Angle:" + str(round(avg_a[1], 2)) + "°  Value:" + str(round(avg_a[0], 2)))
+        #print("Peak Average B. Angle:" + str(avg_b[1]) + "°  Value:" + str(avg_b[0]))    
+
 def showBalanceGraph(line):
     if (len(line) > 500):
         rpm_segement = bytesToInt(line, 1, 44)
         graph.statusMessage("RPM: " + str(rpm_segement[0]))
         parse_position = rpm_segement[1]
         i = 0
-        max_i_size = 178
-        while ((i < 89) and (line[parse_position] != 10)):
-            a = bytesToInt(line, parse_position, 44)
-            sensorAReadings[i] = (a[0] - sensor_a_zero)
-            b = bytesToInt(line, a[1], 44)
-            sensorBReadings[i] = (b[0] - sensor_b_zero)
-            parse_position = b[1]
-            i += 1
-        plot_arrays()
+        sensorAMax = (0, 0)
+        sensorBMax = (0, 0)
+        max_parse_position = len(line)
+        try:
+            while ((i < 89) and (parse_position < max_parse_position) and (line[parse_position] != 10)):
+                a = bytesToInt(line, parse_position, 44)
+                sensor_a = (a[0] - sensor_a_zero)
+                if (sensor_a >= sensorAMax[0]):
+                    sensorAMax = (sensor_a, i)
+                sensorAReadings[i] = sensorAReadings[i] + sensor_a
+
+                b = bytesToInt(line, a[1], 44)
+                sensor_b = (b[0] - sensor_b_zero)
+                if (sensor_b >= sensorBMax[0]):
+                    sensorBMax = (sensor_b, i)
+                sensorBReadings[i] = sensorBReadings[i] + sensor_b
+
+                parse_position = b[1]
+                i += 1
+
+            plot_arrays()
+            handleLineMaximum(sensorAMax, sensorBMax)
+        except:
+            print("BANG! i=" + str(i) + " p pos: " + str(parse_position))
+            raise
 
 def handleZeroCalibration(line):
     tmp = bytesToInt(line, 1, 44)
-    sensor_a_zero = tmp[0]
+    #sensor_a_zero = tmp[0]
     tmp = bytesToInt(line, tmp[1], 10)
     sensor_b_zero = tmp[0]
-    print("Channel A Zero: " + str(sensor_b_zero) + " Channel B Zero: " + str(sensor_b_zero))
+    print("Channel A Zero: " + str(sensor_a_zero) + " Channel B Zero: " + str(sensor_b_zero))
 
 def handle_line(line):
     if (line != b''):
