@@ -86,7 +86,12 @@ void loop() {
         }
       }
     } else {
-      //Serial.print("NO");
+      Serial.print("NO");
+    }
+    Serial.flush();
+    go = false;
+  } else {
+    if (!synced) {
       a = analogRead(A0);
       b = analogRead(A1);
       Serial.print("C,");
@@ -95,16 +100,6 @@ void loop() {
       Serial.println((int)b);
       Serial.flush();
     }
-    Serial.flush();
-    go = false;
-  } else {
-      /*a = analogRead(A0);
-      b = analogRead(A1);
-      Serial.print("C,");
-      Serial.print((int)a);
-      Serial.write(',');
-      Serial.println((int)b);
-      Serial.flush();*/
   }
   #endif
   #if 0

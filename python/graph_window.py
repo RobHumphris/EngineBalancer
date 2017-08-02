@@ -65,11 +65,17 @@ class GraphWindow():
 
     def positionMessage(self, position):
         self.position.render("Angle: " + position + "°")
-
+        
     def plotReading(self, angle, v1, v2, colour):
         start = [self.getPlotXFromAngle(angle), self.getYFromValue(v1)]
         end = [self.getPlotXFromAngle(angle+1), self.getYFromValue(v2)]
         pygame.draw.aaline(self.surface, colour, start, end, 2)
+
+    def plotMaximum(self, max):
+        x = int(self.getPlotXFromAngle(max[1]))
+        y = int(self.getYFromValue(max[0]))
+        pygame.draw.circle(self.surface, (255, 255, 255), (x, y), 5, 1)
+        self.screen.blit(self.surface, self.rect)
 
     def draw(self):
         self.drawGraphAxis()

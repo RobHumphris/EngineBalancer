@@ -5,7 +5,7 @@ from graph_window import *
 from button import *
 import settings as cfg
 
-sensor_a_zero = 320
+sensor_a_zero = 0
 sensor_b_zero = 0
 sample_count = 0
 maximums_count = 0
@@ -96,45 +96,50 @@ def handleLineMaximum(sensorAMax, sensorBMax):
             acc_b = (acc_b[0] + sensor_b_maximums[i][0], acc_b[1] + sensor_b_maximums[i][1])
         avg_a = ((acc_a[0] / count), (acc_a[1] / count))
         avg_b = ((acc_b[0] / count), (acc_b[1] / count))
-        resetMaximums(avg_a, avg_b)
-        print("Peak Average A. Angle:" + str(round(avg_a[1], 2)) + "°  Value:" + str(round(avg_a[0], 2)))
+        #resetMaximums(avg_a, avg_b)
+        print("Peak Average A. Angle:" + str(round((avg_a[1]*cfg.ANGLE_MULTIPLE))) + "°  Value:" + str(round(avg_a[0])))
+        graph.plotMaximum(avg_a)
         #print("Peak Average B. Angle:" + str(avg_b[1]) + "°  Value:" + str(avg_b[0]))    
 
 def showBalanceGraph(line):
+    global sensor_a_zero, sensor_b_zero
     if (len(line) > 500):
         rpm_segement = bytesToInt(line, 1, 44)
-        graph.statusMessage("RPM: " + str(rpm_segement[0]))
-        parse_position = rpm_segement[1]
-        i = 0
-        sensor_a_max = (0, 0)
-        sensor_b_max = (0, 0)
-        max_parse_position = len(line)
-        try:
-            while ((i < 89) and (parse_position < max_parse_position) and (line[parse_position] != 10)):
-                a = bytesToInt(line, parse_position, 44)
-                sensor_a = (a[0] - sensor_a_zero)
-                if (sensor_a >= sensor_a_max[0]):
-                    sensor_a_max = (sensor_a, (i * cfg.PLOTXSCALAR))
-                sensor_a_readings[i] = sensor_a_readings[i] + sensor_a
+        rpm = rpm_segement[0]
+        graph.statusMessage("RPM: " + str(rpm))
+        if (rpm > 494):
+            parse_position = rpm_segement[1]
+            i = 0
+            sensor_a_max = (0, 0)
+            sensor_b_max = (0, 0)
+            max_parse_position = len(line)
+            try:
+                while ((i < 89) and (parse_position < max_parse_position) and (line[parse_position] != 10)):
+                    a = bytesToInt(line, parse_position, 44)
+                    sensor_a = (a[0] - sensor_a_zero)
+                    if (sensor_a >= sensor_a_max[0]):
+                        sensor_a_max = (sensor_a, i)
+                    sensor_a_readings[i] = sensor_a_readings[i] + sensor_a
 
-                b = bytesToInt(line, a[1], 44)
-                sensor_b = (b[0] - sensor_b_zero)
-                if (sensor_b >= sensor_b_max[0]):
-                    sensor_b_max = (sensor_b, (i * cfg.PLOTXSCALAR))
-                sensor_b_readings[i] = sensor_b_readings[i] + sensor_b
+                    b = bytesToInt(line, a[1], 44)
+                    sensor_b = (b[0] - sensor_b_zero)
+                    if (sensor_b >= sensor_b_max[0]):
+                        sensor_b_max = (sensor_b, i)
+                    sensor_b_readings[i] = sensor_b_readings[i] + sensor_b
 
-                parse_position = b[1]
-                i += 1
+                    parse_position = b[1]
+                    i += 1
 
-            plot_arrays()
-            handleLineMaximum(sensor_a_max, sensor_b_max)
-        except:
-            print("BANG! i=" + str(i) + " p pos: " + str(parse_position))
-            raise
+                plot_arrays()
+                handleLineMaximum(sensor_a_max, sensor_b_max)
+            except:
+                print("BANG! i=" + str(i) + " p pos: " + str(parse_position))
+                raise
 
 def handleZeroCalibration(line):
-    tmp = bytesToInt(line, 1, 44)
-    #sensor_a_zero = tmp[0]
+    global sensor_a_zero, sensor_b_zero
+    tmp = bytesToInt(line, 2, 44)
+    sensor_a_zero = tmp[0]
     tmp = bytesToInt(line, tmp[1], 10)
     sensor_b_zero = tmp[0]
     print("Channel A Zero: " + str(sensor_a_zero) + " Channel B Zero: " + str(sensor_b_zero))
