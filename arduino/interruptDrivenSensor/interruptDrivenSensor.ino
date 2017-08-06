@@ -76,11 +76,13 @@ void loop() {
         if ((rpm > BALANCE_THRESHOLD_MIN) && (rpm < BALANCE_THRESHOLD_MAX)) {
           Serial.write('R');
           Serial.print((int)rpm);
+          Serial.write(',');
+          // Try: for(i=0; i<=TRIGGER_TEETH-MODULUS; i+=MODULUS)
           for(i=0; i<TRIGGER_TEETH-MODULUS; i+=MODULUS) {
-            Serial.write(',');
             Serial.print(strainSensorA[i]);
             Serial.write(',');
             Serial.print(strainSensorB[i]);
+            Serial.write(',');
           }
           Serial.println();
         }

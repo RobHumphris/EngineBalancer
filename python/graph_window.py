@@ -8,6 +8,9 @@ class GraphWindow():
         self.surface = pygame.surface.Surface((cfg.WIDTH, cfg.HEIGHT))
         self.rect = self.surface.get_rect(center=(cfg.WIDTH/2, cfg.HEIGHT/2))
 
+        self.scope_trace = pygame.surface.Surface((cfg.WIDTH, cfg.HEIGHT))
+        self.scope_trace_rect = self.scope_trace.get_rect(center=(cfg.WIDTH/2, cfg.HEIGHT/2))
+
         self.status = Label(screen, self.surface, self.rect, 5, 5, cfg.STATUSCOLOUR, cfg.SCREEN, pygame.font.SysFont(cfg.FONT_NAME, 18, "bold"))  
         self.position = Label(screen, self.surface, self.rect, 5, 390, cfg.POSITIONCOLOUR, cfg.SCREEN, pygame.font.SysFont(cfg.FONT_NAME, 36, "bold"))
         
@@ -69,7 +72,8 @@ class GraphWindow():
     def plotReading(self, angle, v1, v2, colour):
         start = [self.getPlotXFromAngle(angle), self.getYFromValue(v1)]
         end = [self.getPlotXFromAngle(angle+1), self.getYFromValue(v2)]
-        pygame.draw.aaline(self.surface, colour, start, end, 2)
+        #pygame.draw.aaline(self.surface, colour, start, end, 2)
+        pygame.draw.aaline(self.scope_trace, colour, start, end, 2)
 
     def plotMaximum(self, max):
         x = int(self.getPlotXFromAngle(max[1]))
@@ -78,10 +82,11 @@ class GraphWindow():
         self.screen.blit(self.surface, self.rect)
 
     def draw(self):
+        self.surface.blit(self.scope_trace, self.rect)
         self.drawGraphAxis()
         self.drawLegend()
         self.status.refresh()
-        self.position.refresh()
+        self.position.refresh()        
         self.screen.blit(self.surface, self.rect)
 
     def clear(self):

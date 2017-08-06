@@ -97,9 +97,13 @@ def handleLineMaximum(sensorAMax, sensorBMax):
         avg_a = ((acc_a[0] / count), (acc_a[1] / count))
         avg_b = ((acc_b[0] / count), (acc_b[1] / count))
         #resetMaximums(avg_a, avg_b)
-        print("Peak Average A. Angle:" + str(round((avg_a[1]*cfg.ANGLE_MULTIPLE))) + "°  Value:" + str(round(avg_a[0])))
+        #print("Peak Average A. Angle:" + str(round((avg_a[1]*cfg.ANGLE_MULTIPLE))) + "°  Value:" + str(round(avg_a[0])))
         graph.plotMaximum(avg_a)
-        #print("Peak Average B. Angle:" + str(avg_b[1]) + "°  Value:" + str(avg_b[0]))    
+        print("Peak Average B. Angle:" + str(round(avg_b[1]*cfg.ANGLE_MULTIPLE)) + "°  Value:" + str(round(avg_b[0])))    
+
+def __showBalanceGraph(line):
+    global sensor_a_zero, sensor_b_zero
+    line.split
 
 def showBalanceGraph(line):
     global sensor_a_zero, sensor_b_zero
@@ -112,9 +116,9 @@ def showBalanceGraph(line):
             i = 0
             sensor_a_max = (0, 0)
             sensor_b_max = (0, 0)
-            max_parse_position = len(line)
+            max_parse_position = len(line) - 2
             try:
-                while ((i < 89) and (parse_position < max_parse_position) and (line[parse_position] != 10)):
+                while (parse_position < max_parse_position):
                     a = bytesToInt(line, parse_position, 44)
                     sensor_a = (a[0] - sensor_a_zero)
                     if (sensor_a >= sensor_a_max[0]):
@@ -140,8 +144,9 @@ def handleZeroCalibration(line):
     global sensor_a_zero, sensor_b_zero
     tmp = bytesToInt(line, 2, 44)
     sensor_a_zero = tmp[0]
-    tmp = bytesToInt(line, tmp[1], 10)
+    tmp = bytesToInt(line, tmp[1], 13)
     sensor_b_zero = tmp[0]
+    graph.statusMessage("Calibrating...")
     print("Channel A Zero: " + str(sensor_a_zero) + " Channel B Zero: " + str(sensor_b_zero))
 
 def handle_line(line):
