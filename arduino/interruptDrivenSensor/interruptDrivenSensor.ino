@@ -11,7 +11,6 @@
 
 const unsigned char PS_32 = (1 << ADPS2) | (1 << ADPS0);
 const unsigned char PS_128 = (1 << ADPS2) | (1 << ADPS1) | (1 << ADPS0);
-
 const int triggerPin = 2;
 const int syncPin = 3;
 const int directionPin = 4;
@@ -135,6 +134,7 @@ void syncPinInterrupt() {
   rpm = 60000 / (ts - previousTimeStamp);
   previousTimeStamp = ts;
   go = true;
+
 }
 
 void readStrainSensors(int tooth) {
