@@ -56,3 +56,35 @@ Things that already work are:
     * [Robot Shop's Strain gauge load cell amplifier sheild](http://www.robotshop.com/uk/strain-gauge-load-cell-amplifier-shield-2ch.html?utm_source=Facebook&utm_medium=Paid&utm_campaign=ProdCatUK)
     * Opteck OPB830W Photo Interrupters (http://datasheet.octopart.com/OPB830W55Z-TT-datasheet-5310085.pdf)
 * Python based Graphical display.
+
+## Implementation
+### Rotary Encoding
+We have machined an optical trigger disk which gives us 1 degree accuracy.
+
+![Optical Trigger Disk](images/optical-trigger.jpg)
+
+Which uses the three photo interrupters to provide position and direction.
+
+If you look towards the bottom of the disk (at ~ 4 o'clock) you will see an extended slot to provide rotational synchronisation.
+
+Before mounting, we tested the disk on a lathe to ensure that the photo interrupters would work with the disk at the ~500rpm speed that the balancer operates at. 
+![Lathe Testing](images/lathe-test.jpg)
+
+We found that the original interrupters with a 1mm window were very position sensitive, and failed to operate above ~400rpm. These were swapped out to sensors with a 0.25mm window which worked well, even for speeds greater than 650rpm.
+
+### Strain Gauges
+The original load cell consists of two strain gauges either side of a steel strip
+
+![Original Strai Gauge](images/original-strain-guage.jpg)
+
+Which would work as a Quarter Bridge Strain Gauge
+
+![Wheatstone](https://sub.allaboutcircuits.com/images/00427.png)
+
+See [All about Circuits](https://www.allaboutcircuits.com/textbook/direct-current/chpt-9/strain-gauges/) page for a proper description.
+
+Because these are very old, and also because I don't fully understand how they're meant to be setup with the Load Cell Amplifier, I decided to use a 50kg micro loadcell from RobotShop. I lashed up a temporary mount to test the balancer hardware.
+
+![Temporary Mounting](images/strain-gauge.jpg)
+
+The net result was that the load on the load cell from an unbalanced crank could not be read by the 50kg resolution sensor, so we have ordered a number of lower load cells and will try them in turn. We were able to see the signal from the load cell changing when we pulled or pushed on the balancer cradle so decided that the resolution is far to low to be any use with this sensor.
